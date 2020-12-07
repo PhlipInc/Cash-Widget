@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cash_Widget"
         mc:Ignorable="d"
-        Title="Cash Widget" Height="600" Width="400" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+        Title="Cash Widget" Height="600" Width="400" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" FontFamily="Roboto">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50"/>
@@ -17,7 +17,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <Canvas x:Name="RegistrationCanvas" Grid.Row="1" Grid.Column="1" Background="#FFFF9090">
+        <Canvas x:Name="RegistrationCanvas" Grid.Row="1" Grid.Column="1" Background="#FFFF9090" Visibility="Collapsed">
             <Grid Height="469" Width="292">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="25"/>
@@ -37,17 +37,17 @@
                     <RowDefinition Height="25"/>
                 </Grid.RowDefinitions>
                 <DockPanel LastChildFill="True" Grid.Row="1" Grid.Column="1" d:LayoutOverrides="VerticalAlignment">
-                    <TextBox TextWrapping="Wrap" Text="NAME HERE" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="230" Margin="10"/>
+                    <Label Content="PIN CODE" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="230" Margin="10"/>
                 </DockPanel>
                 <DockPanel LastChildFill="True" Grid.Row="2" Grid.Column="1" d:LayoutOverrides="VerticalAlignment">
-                    <TextBox TextWrapping="Wrap" Text="PINCODE HERE" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="230" Margin="10"/>
+                    <PasswordBox x:Name="RegisterPasscodeBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="230" Margin="10" MaxLength="6" ToolTip="Recommended to use 2 letters and 4 numbers for maximum security(Max Length is 6)"/>
                 </DockPanel>
                 <DockPanel LastChildFill="True" Grid.Row="8" Grid.Column="1" d:LayoutOverrides="VerticalAlignment">
-                    <Button Content="Register" Width="117" HorizontalAlignment="Right"/>
+                    <Button Content="Register" Width="117" HorizontalAlignment="Right" Click="RegisterAccountButton"/>
                 </DockPanel>
             </Grid>
         </Canvas>
-        <Canvas x:Name="LoginCanvas" Grid.Row="1" Grid.Column="1" Background="#FF8B8B8B" Visibility="Collapsed">
+        <Canvas x:Name="LoginCanvas" Grid.Row="1" Grid.Column="1" Background="#FF8B8B8B">
             <Grid Height="469" Width="292">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="25"/>
@@ -62,10 +62,19 @@
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="75"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="25"/>
                 </Grid.RowDefinitions>
+                <DockPanel LastChildFill="True" Grid.Row="1" Grid.Column="1" d:LayoutOverrides="VerticalAlignment">
+                    <Label Content="PIN CODE" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="230" Margin="10"/>
+                </DockPanel>
+                <DockPanel LastChildFill="True" Grid.Row="2" Grid.Column="1" d:LayoutOverrides="VerticalAlignment">
+                    <PasswordBox x:Name="LoginPasswordBox" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="230" Margin="10" MaxLength="6" ToolTip="PIN CODE"/>
+                </DockPanel>
+                <DockPanel LastChildFill="True" Grid.Row="8" Grid.Column="1" d:LayoutOverrides="VerticalAlignment">
+                    <Button Content="LOGIN" Width="117" HorizontalAlignment="Right" Click="LoginButton"/>
+                </DockPanel>
             </Grid>
         </Canvas>
     </Grid>
