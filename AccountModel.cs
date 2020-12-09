@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,8 @@ namespace Cash_Widget
 {
     public class AccountDBContext : DbContext
     {
-        public DbSet<Account> Account { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        //public DbSet<Transaction> Transactions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite($"Data Source={Environment.ProcessorCount}.db");
@@ -19,49 +21,108 @@ namespace Cash_Widget
 
         public IEnumerable<Account> GetAccounts()
         {
-            return from accounts
-                   in Account
-                   orderby accounts.accountID
-                   select accounts;
+            return Accounts.OrderBy(a => a.AccountID);
+        }
+
+        public IEnumerable<Transaction> GetTransactionsInRange(string name,DateTime first, DateTime last)
+        {
+            return GetAccountByName(name).Transactions.Where(a => a.TransactionDate >= first && a.TransactionDate <= last);
+            //return GetAccountByName(name).SelectMany(a => a.Transactions.Where(b => b.TransactionDate >= DateTime.Now && b.TransactionDate <= DateTime.Now));
         }
 
         public Account GetAccountByName(string name)
         {
-            return (from accounts
-                   in GetAccounts()
-                   where accounts.name == name 
-                   select accounts).FirstOrDefault();
+            try
+            {
+                return Accounts.FirstOrDefault(filterByName);
+
+                bool filterByName(Account account)
+                {
+                    return account.Name == name;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return null;
         }
 
-        public bool Checkpasscode(string inputPasscode)
+        public bool Checkpasscode(int inputPasscode, string name)
         {
-            string pass = GetAccountByName("").passcode;
-
-            bool check = pass.Equals(inputPasscode);
+            bool check = GetAccountByName(name).Passcode.Equals(inputPasscode);
             return check;
         }
 
         public async void InsertAccount(Account account)
         {
-            Account.Add(account);
-            await SaveChangesAsync();
+            Accounts.Add(account);
+            await SaveChangesAsync().ConfigureAwait(true);
         }
-    }
+        public async void UpdateAccount(Account account)
+        {
+            Accounts.Update(account);
+            await SaveChangesAsync().ConfigureAwait(true);
+        }
+        public async void AddTransactions(Account account, Transaction transaction, string name)
+        {
+            try
+            {
+                GetAccountByName(name).Transactions.Add(transaction);
+                Accounts.UpdateRange(GetAccountByName(name));
+                await SaveChangesAsync().ConfigureAwait(true);
+            }
+            catch (NullReferenceException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
 
-    [Table("cash_accounts")]
-    public class Account
-    {
-        [Column("Id")]
-        public int accountID { get; set; }
-        [Column("name")]
-        public string name { get; set; }
-        [Column("passcode")]
-        public string passcode { get; set; }
-    }
+        [Table("accounts")]
+        public class Account
+        {
+            [Column("Id")]
+            public int AccountID { get; set; }
+            [Column("Name")]
+            public string Name { get; set; }
+            [Column("Passcode")]
+            public int Passcode { get; set; }
+            [Column("DebitAmount")]
+            public int DebitAmount { get; set; }
+            [Column("CreditAmount")]
+            public int CreditAmount { get; set; }
+            [Column("PasswordProtection", TypeName = "BOOL")]
+            public bool PasswordProtection { get; set; }
+            [Column("Transactions")]
+            public List<Transaction> Transactions { get; set; } = new List<Transaction>();
 
-    [Table("cash_transactions")]
-    public class Transactions
-    {
+            public void NewAaccount(string passcode)
+            {
+                Name = Environment.UserName;
+                Passcode = Convert.ToInt32(passcode);
+                DebitAmount = 0;
+                CreditAmount = 0;
+                PasswordProtection = true;
+            }
+        }
 
+        [Table("transactions")]
+        public class Transaction
+        {
+            [Column("Id", TypeName = "INTEGER")]
+            public int TransactionID { get; set; }
+            [Column("Name")]
+            public string Name { get; set; }
+            [Column("Note")]
+            public string Note { get; set; }
+            [Column("TransactionDate")]
+            public DateTime TransactionDate { get; set; }
+            [Column("Category")]
+            public string Category { get; set; }
+            [Column("PaymentType")]
+            public string PaymentType { get; set; }
+            [Column("Amount")]
+            public int Amount { get; set; }
+        }
     }
 }
