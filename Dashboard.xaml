@@ -5,10 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cash_Widget"
         mc:Ignorable="d"
-        Title="Dashboard" Height="450" Width="800">
+        Title="{Binding MyName}" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Height="70" Margin="95,85,0,0" VerticalAlignment="Top" Width="175" Click="Button_Click"/>
-        <DatePicker x:Name="dti" Margin="385,155,305.36,0" VerticalAlignment="Top" d:LayoutOverrides="Width" SelectedDateFormat="Long"/>
+        <Button Content="Button" HorizontalAlignment="Left" Height="70" Margin="607,339,0,0" VerticalAlignment="Top" Width="175" Click="Button_Click"/>
+        <DatePicker x:Name="dti" Margin="680,310,10,0" VerticalAlignment="Top" SelectedDateFormat="Long"/>
+        <DataGrid ItemsSource="{Binding Accounts, Mode=TwoWay}" HorizontalAlignment="Left" Height="399" Margin="10,10,0,0" VerticalAlignment="Top" Width="435" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding MyName}" Header="Name"/>
+                <DataGridTextColumn Binding="{Binding MyBalance}" Header="Balance"/>
+                <DataGridTextColumn Binding="{Binding MyDebitAmount}" Header="Debit Amount"/>
+                <DataGridTextColumn Binding="{Binding MyCreditAmount}" Header="Credit Amount"/>
+            </DataGrid.Columns>
+        </DataGrid>
 
     </Grid>
 </Window>

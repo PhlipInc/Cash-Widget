@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace Cash_Widget
 {
     public class AccountDBContext : DbContext
     {
+
         public DbSet<Account> Accounts { get; set; }
         //public DbSet<Transaction> Transactions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,7 +26,7 @@ namespace Cash_Widget
             return Accounts.OrderBy(a => a.AccountID);
         }
 
-        public IEnumerable<Transaction> GetTransactionsInRange(string name,DateTime first, DateTime last)
+        public IEnumerable<Transaction> GetTransactionsInRange(string name, DateTime first, DateTime last)
         {
             return GetAccountByName(name).Transactions.Where(a => a.TransactionDate >= first && a.TransactionDate <= last);
             //return GetAccountByName(name).SelectMany(a => a.Transactions.Where(b => b.TransactionDate >= DateTime.Now && b.TransactionDate <= DateTime.Now));
@@ -77,52 +79,55 @@ namespace Cash_Widget
                 Debug.WriteLine(ex.Message);
             }
         }
+    }
 
-        [Table("accounts")]
-        public class Account
+    [Table("accounts")]
+    public class Account
+    {
+        [Column("Id")]
+        public int AccountID { get; set; }
+        [Column("Name")]
+        public string Name { get; set; }
+        [Column("Passcode")]
+        public int Passcode { get; set; }
+        [Column("DebitAmount")]
+        public double DebitAmount { get; set; }
+        [Column("CreditAmount")]
+        public double CreditAmount { get; set; }
+        [Column("PasswordProtection", TypeName = "BOOL")]
+        public bool PasswordProtection { get; set; }
+        [Column("Transactions")]
+        public List<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public double Balance
         {
-            [Column("Id")]
-            public int AccountID { get; set; }
-            [Column("Name")]
-            public string Name { get; set; }
-            [Column("Passcode")]
-            public int Passcode { get; set; }
-            [Column("DebitAmount")]
-            public int DebitAmount { get; set; }
-            [Column("CreditAmount")]
-            public int CreditAmount { get; set; }
-            [Column("PasswordProtection", TypeName = "BOOL")]
-            public bool PasswordProtection { get; set; }
-            [Column("Transactions")]
-            public List<Transaction> Transactions { get; set; } = new List<Transaction>();
-
-            public void NewAaccount(string passcode)
-            {
-                Name = Environment.UserName;
-                Passcode = Convert.ToInt32(passcode);
-                DebitAmount = 0;
-                CreditAmount = 0;
-                PasswordProtection = true;
-            }
+            get => DebitAmount + CreditAmount;
         }
 
-        [Table("transactions")]
-        public class Transaction
+        public void NewAaccount(string passcode)
         {
-            [Column("Id", TypeName = "INTEGER")]
-            public int TransactionID { get; set; }
-            [Column("Name")]
-            public string Name { get; set; }
-            [Column("Note")]
-            public string Note { get; set; }
-            [Column("TransactionDate")]
-            public DateTime TransactionDate { get; set; }
-            [Column("Category")]
-            public string Category { get; set; }
-            [Column("PaymentType")]
-            public string PaymentType { get; set; }
-            [Column("Amount")]
-            public int Amount { get; set; }
+            Name = Environment.UserName;
+            Passcode = Convert.ToInt32(passcode);
+            DebitAmount = 0;
+            CreditAmount = 0;
+            PasswordProtection = true;
         }
+    }
+    [Table("transactions")]
+    public class Transaction
+    {
+        [Column("Id", TypeName = "INTEGER")]
+        public int TransactionID { get; set; }
+        [Column("Name")]
+        public string Name { get; set; }
+        [Column("Note")]
+        public string Note { get; set; }
+        [Column("TransactionDate")]
+        public DateTime TransactionDate { get; set; }
+        [Column("Category")]
+        public string Category { get; set; }
+        [Column("PaymentType")]
+        public string PaymentType { get; set; }
+        [Column("Amount")]
+        public int Amount { get; set; }
     }
 }

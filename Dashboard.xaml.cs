@@ -19,20 +19,23 @@ namespace Cash_Widget
     /// </summary>
     public partial class Dashboard : Window
     {
-        private readonly AccountDBContext aContext = new AccountDBContext();
-        private AccountDBContext.Account acc = new AccountDBContext.Account();
-        private AccountDBContext.Transaction trans = new AccountDBContext.Transaction();
+        //private readonly AccountDBContext aContext = new AccountDBContext();
+        /*private AccountDBContext.Account acc = new AccountDBContext.Account();
+        private AccountDBContext.Transaction trans = new AccountDBContext.Transaction();*/
+        View_Model.MainViewModel avm = new View_Model.MainViewModel();
         DateTime dt = DateTime.UtcNow;
 
         public Dashboard()
         {
             InitializeComponent();
+            DataContext = avm;
+            avm.OnDashboardLoad();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             //aContext.GetTransactionsInRange();
-            trans = new AccountDBContext.Transaction();
+            /*trans = new AccountDBContext.Transaction();
             trans.Name = "Proof";
             trans.Category = "Lorem";
             trans.Note = "Ipsum for the win";
@@ -46,7 +49,7 @@ namespace Cash_Widget
             trans.Note = "Ipsum for the win";
             trans.PaymentType = "Debit";
             trans.TransactionDate = dt;
-            trans.Amount = 1000; 
+            trans.Amount = 1000;
             aContext.AddTransactions(acc, trans, "fart");
             trans = new AccountDBContext.Transaction();
             trans.Name = "Proof";
@@ -79,7 +82,7 @@ namespace Cash_Widget
             trans.PaymentType = "Debit";
             trans.TransactionDate = dt;
             trans.Amount = 1000;
-            aContext.AddTransactions(acc, trans, "fart");
+            aContext.AddTransactions(acc, trans, "fart");*/
 
         }
     }

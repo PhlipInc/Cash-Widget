@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Cash_Widget.View_Model;
 
 namespace Cash_Widget
 {
@@ -12,43 +13,23 @@ namespace Cash_Widget
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly AccountDBContext aContext = new AccountDBContext();
-        private readonly AccountDBContext.Account acc = new AccountDBContext.Account();
-        private readonly AccountDBContext.Transaction trans = new AccountDBContext.Transaction();
+        private MainViewModel avm = new MainViewModel();
         public MainWindow()
         {
             InitializeComponent();
+            avm.InitializeDatabase();
         }
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (File.Exists($"{Environment.ProcessorCount}.db"))
-            {
-                if (aContext.GetAccountByName(Environment.UserName).PasswordProtection == true)
-                {
-                    RegistrationCanvas.Visibility = Visibility.Collapsed;
-                    LoginCanvas.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    MessageBox.Show(acc.PasswordProtection.ToString());
-                    Window w = new Window();
-                    w.Show();
-                }
-            }
-            else
-            {
-                LoginCanvas.Visibility = Visibility.Collapsed;
-                RegistrationCanvas.Visibility = Visibility.Visible;
-                await aContext.Database.EnsureCreatedAsync().ConfigureAwait(true);
-            }
+            DisplayCorrectCanvas();
         }
 
         private void RegisterAccountButton(object sender, RoutedEventArgs e)
         {
             try
             {
-                TestAccount();
+                Register();
             }
             catch (Exception ex)
             {
@@ -58,10 +39,46 @@ namespace Cash_Widget
 
         private void LoginButton(object sender, RoutedEventArgs e)
         {
-            if (aContext.Checkpasscode(Convert.ToInt32(LoginPasswordBox.Password), Environment.UserName) == true)
+            try
+            {
+                Login();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        public void DisplayCorrectCanvas()
+        {
+            //Sets the correct canvas corresponding to if the user needs to register for an account or login to an account
+            if (avm.IsRegistered == true)
+            {
+                if (avm.IsPasswordProtected == true)
+                {
+                    LoginCanvas.Visibility = Visibility.Visible;
+                    RegistrationCanvas.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    Dashboard d = new Dashboard();
+                    d.Show();
+                }
+            }
+            else
+            {
+                LoginCanvas.Visibility = Visibility.Collapsed;
+                RegistrationCanvas.Visibility = Visibility.Visible;
+            }
+        }
+
+        public void Login()
+        {
+            if (avm.IsPasscodeCorrect(LoginPasswordBox.Password) == true)
             {
                 Dashboard w = new Dashboard();
                 w.Show();
+                this.Close();
             }
             else
             {
@@ -69,36 +86,11 @@ namespace Cash_Widget
             }
         }
 
-        private void NewAccount()
+        public void Register()
         {
-            acc.Name = Environment.UserName;
-            acc.Passcode = Convert.ToInt32(RegisterPasscodeBox.Password);
-            acc.DebitAmount = 0;
-            acc.CreditAmount = 0;
-            acc.PasswordProtection = true;
-            aContext.InsertAccount(acc);
-            RegistrationCanvas.Visibility = Visibility.Collapsed;
             LoginCanvas.Visibility = Visibility.Visible;
-        }
-
-        private void TestAccount()
-        {
-            acc.Name = Environment.UserName;
-            acc.Passcode = Convert.ToInt32(RegisterPasscodeBox.Password);
-            acc.DebitAmount = 1000;
-            acc.CreditAmount = 54000204;
-            acc.PasswordProtection = true;
-            trans.Name = "Pizza";
-            trans.Category = "Food";
-            trans.Note = "Pizza for delivery";
-            trans.PaymentType = "Debit";
-            DateTime dt = DateTime.UtcNow;
-            trans.TransactionDate = dt;
-            trans.Amount = 1000;
-            acc.Transactions.Add(trans);
-            aContext.InsertAccount(acc);
             RegistrationCanvas.Visibility = Visibility.Collapsed;
-            LoginCanvas.Visibility = Visibility.Visible;
+            avm.NewAccount(RegisterPasscodeBox.Password);
         }
     }
 }
